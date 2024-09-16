@@ -55,6 +55,20 @@ void stringToArray() { //function to convert a string to an array of integers
     return 0;
 }
 
+void sortArray() { // Define an array of integers
+    int arr[] = {5, 2, 9, 1, 5, 6}; // Example array
+    int n = sizeof(arr) / sizeof(arr[0]); // Calculate the number of elements in the array
+    
+    // Sorting the array in ascending order
+    std::sort(arr, arr + n);
+     std::cout << "Sorted array in ascending order: "; // Display the sorted array to the console
+    for(int i = 0; i < n; i++) { //this loop will iterate through the array and print each element
+    std::cout << arr[i] << " "; //print the element found at index i
+    }
+    std::cout << std::endl; // Print a newline character
+    return 0; 
+}
+
 int main() {
     readTextFile();
     stringToArray();
