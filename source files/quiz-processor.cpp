@@ -7,7 +7,14 @@
 #include <string>
 
 
-
+//methods prototypes
+double calulateAverage(int arr[], int size); {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    return static double (sum) / size;
+}
 
 
 int main() 
@@ -17,7 +24,7 @@ int main()
     const int maxSize = 100; //seting the max size of the array
     int numbers[maxSize];
     int index = 0; //the first index of the array
-    
+
     cout << "Enter a list of numbers separated by commas: ";
     getline(cin, input);
 
