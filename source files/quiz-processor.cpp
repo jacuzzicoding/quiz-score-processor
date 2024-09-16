@@ -14,9 +14,9 @@ int main()
 //this will take a string and split it into an array of integers
     std::string input = "10,20,30,40,50"; //example input
 
-    const int maxSize = 100;
+    const int maxSize = 100; //seting the max size of the array
     int numbers[maxSize];
-    int index = 0;
+    int index = 0; //the first index of the array
     
     cout << "Enter a list of numbers separated by commas: ";
     getline(cin, input);
