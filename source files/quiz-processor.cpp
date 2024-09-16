@@ -17,7 +17,7 @@ double calulateAverage(int arr[], int size); {
 }
 
 
-int main() 
+int main() {
 //this will take a string and split it into an array of integers
     std::string input = "10,20,30,40,50"; //example input
 
@@ -29,3 +29,4 @@ int main()
     getline(cin, input);
 
     std::string temp;
+}
