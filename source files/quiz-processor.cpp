@@ -13,7 +13,7 @@ double calulateAverage(int arr[], int size); { //this will take the array and si
     for (int i = 0; i < size; i++) { //loop from 0 all the way up to the size of the array
         sum += arr[i]; //add the element at index i to the sum
     }
-    return static double (sum) / size; //this takes the sum and divides it by the size of the array to get the average
+    double average = sum / size; //calculate the average by dividing the sum by the size of the array
     std::cout<< "The average is: " << average << std::endl; //print the average to the console
 }
 
