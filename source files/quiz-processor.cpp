@@ -7,19 +7,20 @@
 #include <string>
 
 
-//function prototypes
-double calulateAverage(int arr[], int size); {
-    int sum = 0;
-    for (int i = 0; i < size; i++) {
-        sum += arr[i];
+//function prototypes i will use in the main loop
+double calulateAverage(int arr[], int size); { //this will take the array and size of the array as arguments to calculate the average
+    int sum = 0; //set the sum to 0, this is because we will be adding the elements of the array to this variable
+    for (int i = 0; i < size; i++) { //loop from 0 all the way up to the size of the array
+        sum += arr[i]; //add the element at index i to the sum
     }
-    return static double (sum) / size;
+    return static double (sum) / size; //this takes the sum and divides it by the size of the array to get the average
+    std::cout<< "The average is: " << average << std::endl; //print the average to the console
 }
 
 void readTextFile() { //function to read the text file
-    std::ifstream file("example.txt");
+    std::ifstream file("scores.txt"); //this will open the file of scores
 
-    if (!file.is_open()) {
+    if (!file.is_open()) { //if the file doesnt open print an error message
     std::cerr << "Failed to open the file." << std::endl;
     return 1;
     }
