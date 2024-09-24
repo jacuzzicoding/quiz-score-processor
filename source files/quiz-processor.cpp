@@ -1,90 +1,156 @@
-//A program that reads a text file (score.txt), and calculate individual and class
-//averages, and standard deviation of the class.
-
-
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
 
+const int MAX_STUDENTS = 100;
+const int NUM_QUIZZES = 5;
 
-//function prototypes i will use in the main loop
-double calulateAverage(int arr[], int size); { //this will take the array and size of the array as arguments to calculate the average
-    int sum = 0; //set the sum to 0, this is because we will be adding the elements of the array to this variable
-    for (int i = 0; i < size; i++) { //loop from 0 all the way up to the size of the array
-        sum += arr[i]; //add the element at index i to the sum
-    }
-    double average = sum / size; //calculate the average by dividing the sum by the size of the array
-    std::cout<< "The average is: " << average << std::endl; //print the average to the console
-}
-
-void readTextFile() { //function to read the text file
-    std::ifstream file("scores.txt"); //this will open the file of scores
-
-    if (!file.is_open()) { //if the file doesnt open print an error message
-    std::cerr << "Failed to open the file." << std::endl;
-    return 1;
-    }
-    std::string line;
-    while (std::getline(file, line)) {
-    std::cout << line << std::endl;
-    }
-    file.close();
-    return 0;
- }
-
-void stringToArray() { //function to convert a string to an array of integers
-    std::string input = "10,20,30,40,50"; //example input
-    const int maxSize = 100;
-    int numbers[maxSize];
-    int index = 0;
-    std::stringstream ss(input);
-    std::string temp;
-    while (std::getline(ss, temp, ',')) {
-    if (index < maxSize) {
-    numbers[index] = std::stoi(temp);
-    index++;
-    } else {
-    std::cerr << "Array size exceeded." << std::endl;
-    break;
-    }
-    }
-    std::cout << "Stored integers:" << std::endl;
-    for (int i = 0; i < index; i++) {
-    std::cout << numbers[i] << " ";
-    }
-    std::cout << std::endl;
-    return 0;
-}
-
-void sortArray() { // Define an array of integers
-    int arr[] = {5, 2, 9, 1, 5, 6}; // Example array
-    int n = sizeof(arr) / sizeof(arr[0]); // Calculate the number of elements in the array
-    
-    // Sorting the array in ascending order
-    std::sort(arr, arr + n);
-     std::cout << "Sorted array in ascending order: "; // Display the sorted array to the console
-    for(int i = 0; i < n; i++) { //this loop will iterate through the array and print each element
-    std::cout << arr[i] << " "; //print the element found at index i
-    }
-    std::cout << std::endl; // Print a newline character
-    return 0; 
-}
+// Function prototypes
+void readTextFile(std::string lines[], int& lineCount);
+void stringToArray(const std::string& input, int numbers[], int& count);
+void sortArray(int arr[], int size);
+double calculateAverage(const int arr[], int size);
+double calculateClassAverage(const double studentAverages[], int count);
+double calculateStandardDeviation(const double studentAverages[], int count, double classAverage);
+void calculateScoreDistribution(const double studentAverages[], int count, int distribution[]);
+double calculateMedian(double studentAverages[], int count);
+double calculateMode(const double studentAverages[], int count);
 
 int main() {
-    readTextFile();
-    stringToArray();
+    std::string lines[MAX_STUDENTS];
+    int lineCount = 0;
+    double studentAverages[MAX_STUDENTS];
+    int distribution[5] = {0};
 
-// Define a 2D array of integers we will use to calculate the average of each row
-    const int rows = 3;
-    const int cols = 4;
-    int array[rows][cols] = {
-    {10, 20, 30, 40},
-    {50, 60, 70, 80},
-    {90, 100, 110, 120}
-    };
-    for (int i = 0; i < rows; i++) {
-    double avg = calculateAverage(array[i], cols);
-    std::cout << "Average of row " << i + 1 << " is: " << avg << std::endl;
+    readTextFile(lines, lineCount);
+    //error check to see if file is empty
+    if (lineCount == 0) {
+        std::cerr << "File is empty." << std::endl;
+        return 1;
     }
+
+    for (int i = 0; i < lineCount; i++) {
+        int scores[NUM_QUIZZES];
+        int scoreCount = 0;
+        stringToArray(lines[i], scores, scoreCount);
+        sortArray(scores, scoreCount);
+        double avg = calculateAverage(scores, 4); // Use top 4 scores
+        studentAverages[i] = avg;
+        std::cout << "Student " << i + 1 << " average: " << std::fixed << std::setprecision(2) << avg << std::endl;
+    }
+
+    double classAvg = calculateClassAverage(studentAverages, lineCount);
+    double stdDev = calculateStandardDeviation(studentAverages, lineCount, classAvg);
+    calculateScoreDistribution(studentAverages, lineCount, distribution);
+
+    double median = calculateMedian(studentAverages, lineCount);
+    double mode = calculateMode(studentAverages, lineCount);
+
+    // Output results
+    std::cout << "\nClass average: " << std::fixed << std::setprecision(4) << classAvg << std::endl;
+    std::cout << "Standard Deviation: " << std::fixed << std::setprecision(5) << stdDev << std::endl;
+    std::cout << "Median: " << std::fixed << std::setprecision(2) << median << std::endl;
+    std::cout << "Mode: " << std::fixed << std::setprecision(2) << mode << std::endl;
+    std::cout << "\nScore Distribution:" << std::endl;
+    std::cout << "0-59: " << distribution[0] << " students" << std::endl;
+    std::cout << "60-69: " << distribution[1] << " students" << std::endl;
+    std::cout << "70-79: " << distribution[2] << " students" << std::endl;
+    std::cout << "80-89: " << distribution[3] << " students" << std::endl;
+    std::cout << "90-100: " << distribution[4] << " students" << std::endl;
+
     return 0;
+}
+
+void readTextFile(std::string lines[], int& lineCount) {
+    std::ifstream file("scores.txt");
+    if (!file.is_open()) {
+        std::cerr << "Failed to open the file." << std::endl;
+        return;
+    }
+    std::string line;
+    while (std::getline(file, line) && lineCount < MAX_STUDENTS) {
+        lines[lineCount++] = line;
+    }
+    file.close();
+}
+
+void stringToArray(const std::string& input, int numbers[], int& count) {
+    std::stringstream ss(input);
+    std::string temp;
+    count = 0;
+    while (std::getline(ss, temp, ',') && count < NUM_QUIZZES) {
+        numbers[count++] = std::stoi(temp);
+    }
+}
+
+void sortArray(int arr[], int size) {
+    std::sort(arr, arr + size, std::greater<int>());
+}
+
+double calculateAverage(const int arr[], int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum += arr[i];
+    }
+    return static_cast<double>(sum) / size;
+}
+
+double calculateClassAverage(const double studentAverages[], int count) {
+    double sum = 0;
+    for (int i = 0; i < count; i++) {
+        sum += studentAverages[i];
+    }
+    return sum / count;
+}
+
+double calculateStandardDeviation(const double studentAverages[], int count, double classAverage) {
+    double sumSquaredDiff = 0;
+    for (int i = 0; i < count; i++) {
+        double diff = studentAverages[i] - classAverage;
+        sumSquaredDiff += diff * diff;
+    }
+    return std::sqrt(sumSquaredDiff / count);
+}
+
+void calculateScoreDistribution(const double studentAverages[], int count, int distribution[]) {
+    for (int i = 0; i < count; i++) {
+        if (studentAverages[i] < 60) distribution[0]++;
+        else if (studentAverages[i] < 70) distribution[1]++;
+        else if (studentAverages[i] < 80) distribution[2]++;
+        else if (studentAverages[i] < 90) distribution[3]++;
+        else distribution[4]++;
+    }
+}
+
+double calculateMedian(double studentAverages[], int count) {
+    std::sort(studentAverages, studentAverages + count);
+    if (count % 2 == 0) {
+        return (studentAverages[count/2 - 1] + studentAverages[count/2]) / 2.0;
+    } else {
+        return studentAverages[count/2];
+    }
+}
+
+double calculateMode(const double studentAverages[], int count) {
+    double modeValue = studentAverages[0];
+    int maxCount = 0;
+    
+    for (int i = 0; i < count; i++) {
+        int currentCount = 0;
+        for (int j = 0; j < count; j++) {
+            if (std::abs(studentAverages[j] - studentAverages[i]) < 0.01) {
+                currentCount++;
+            }
+        }
+        if (currentCount > maxCount || (currentCount == maxCount && studentAverages[i] > modeValue)) {
+            maxCount = currentCount;
+            modeValue = studentAverages[i];
+        }
+    }
+    
+    return modeValue;
 }
